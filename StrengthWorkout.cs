@@ -1,38 +1,18 @@
 /*******************************************************************
 * Name: Steven McGraw
-* Date: 05/25/2026
-* Assignment: SDC320 Course Project Week 2
+* Date: June 7, 2026
+* Assignment: One Rep Further - Database Implementation
 *
-* Represents a strength training workout.
-*/
+* Represents a strength workout.
+*******************************************************************/
 
 public class StrengthWorkout : Workout
 {
-    public int CaloriesBurned { get; set; }
-    public double WeightUsed { get; set; }
-    public int Reps { get; set; }
-
     public StrengthWorkout(
         string workoutName,
-        int durationMinutes,
-        string difficultyLevel,
-        int caloriesBurned,
-        double weightUsed,
-        int reps)
-        : base(workoutName, durationMinutes, difficultyLevel)
+        int duration,
+        int caloriesBurned)
+        : base(workoutName, duration, caloriesBurned, "Strength")
     {
-        CaloriesBurned = caloriesBurned;
-        WeightUsed = weightUsed;
-        Reps = reps;
-    }
-
-    public override string ToString()
-    {
-        return string.Format(
-            "{0}\nCalories Burned: {1}\nWeight Used: {2}\nReps: {3}",
-            base.ToString(),
-            CaloriesBurned,
-            WeightUsed,
-            Reps);
     }
 }

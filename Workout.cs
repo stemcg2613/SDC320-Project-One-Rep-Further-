@@ -1,35 +1,25 @@
 /*******************************************************************
 * Name: Steven McGraw
-* Date: 05/25/2026
-* Assignment: SDC320 Course Project Week 2
+* Date: June 7, 2026
+* Assignment: SDC320 Course Project - Database Implementation
 *
-* Base class for all workout types.
-*/
+* Class that represents a workout record for One Rep Further.
+*******************************************************************/
 
 public class Workout
 {
+    public int ID { get; set; }
+    public int MemberID { get; set; }
     public string WorkoutName { get; set; }
-    public int DurationMinutes { get; set; }
-    public string DifficultyLevel { get; set; }
+    public int Duration { get; set; }
+    public int CaloriesBurned { get; set; }
+    public string WorkoutType { get; set; }
 
-    public Workout(string workoutName, int durationMinutes, string difficultyLevel)
+    public Workout(string workoutName, int duration, int caloriesBurned, string workoutType)
     {
         WorkoutName = workoutName;
-        DurationMinutes = durationMinutes;
-        DifficultyLevel = difficultyLevel;
-    }
-
-    public virtual string GetWorkoutInfo()
-    {
-        return ToString();
-    }
-
-    public override string ToString()
-    {
-        return string.Format(
-            "Workout Name: {0}\nDuration: {1} minutes\nDifficulty: {2}",
-            WorkoutName,
-            DurationMinutes,
-            DifficultyLevel);
+        Duration = duration;
+        CaloriesBurned = caloriesBurned;
+        WorkoutType = workoutType;
     }
 }

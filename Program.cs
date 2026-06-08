@@ -1,139 +1,206 @@
 ﻿/*******************************************************************
 * Name: Steven McGraw
-* Date: 05/31/2026
-* Assignment: SDC320 Course Project Week 3
+* Date: June 7, 2026
+* Assignment: One Rep Further - Database Implementation
 *
-* Main application file for the One Rep Further project.
-* This program demonstrates class implementation, inheritance,
-* abstraction, polymorphism, composition, constructors,
-* access specifiers, and interface usage.
-*/
+* Main application class for the One Rep Further fitness tracker.
+*******************************************************************/
 
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        Console.WriteLine("Steven McGraw");
-        Console.WriteLine("One Rep Further");
-        Console.WriteLine("SDC320 Course Project Week 3");
-        Console.WriteLine();
+        const string dbName = "OneRepFurther.db";
 
-        Console.WriteLine("Welcome to One Rep Further!");
-        Console.WriteLine("This version demonstrates the main class structure for the project.");
-        Console.WriteLine();
+        SQLiteConnection conn = SQLiteDatabase.Connect(dbName);
 
-        Membership membership = new Membership(
-            "Premium",
-            "05/31/2026",
-            true);
+        GymMemberDB.CreateTable(conn);
+        WorkoutDB.CreateTable(conn);
 
-        WorkoutTracker tracker = new WorkoutTracker(
-            3,
-            750);
+        bool running = true;
 
-        GymMember gymMember = new GymMember(
-            "Steven McGraw",
-            36,
-            "Build strength and stay consistent",
-            membership,
-            tracker);
+        while (running)
+        {
+            Console.WriteLine("\nOne Rep Further Fitness Tracker");
+            Console.WriteLine("1. Add Gym Member");
+            Console.WriteLine("2. View Gym Members");
+            Console.WriteLine("3. Add Workout");
+            Console.WriteLine("4. View Workouts");
+            Console.WriteLine("5. Update Gym Member");
+            Console.WriteLine("6. Delete Gym Member");
+            Console.WriteLine("7. Delete Workout");
+            Console.WriteLine("8. Exit");
+            Console.Write("Choose an option: ");
 
-        CardioWorkout cardio = new CardioWorkout(
-            "Treadmill Run",
-            30,
-            "Moderate",
-            250,
-            2.5);
+            string choice = Console.ReadLine();
 
-        StrengthWorkout strength = new StrengthWorkout(
-            "Bench Press",
-            45,
-            "Hard",
-            350,
-            135.0,
-            10);
+            switch (choice)
+            {
+                case "1":
+                    AddGymMember(conn);
+                    break;
+                case "2":
+                    ViewGymMembers(conn);
+                    break;
+                case "3":
+                    AddWorkout(conn);
+                    break;
+                case "4":
+                    ViewWorkouts(conn);
+                    break;
+                case "5":
+                    UpdateGymMember(conn);
+                    break;
+                case "6":
+                    DeleteGymMember(conn);
+                    break;
+                case "7":
+                    DeleteWorkout(conn);
+                    break;
+                case "8":
+                    running = false;
+                    Console.WriteLine("Exiting One Rep Further. Goodbye!");
+                    break;
+                default:
+                    Console.WriteLine("Invalid option. Please try again.");
+                    break;
+            }
+        }
 
-        gymMember.AddWorkout(cardio);
-        gymMember.AddWorkout(strength);
+        conn.Close();
+    }
 
-        Member member = new Member(
-            1,
-            "Steven",
-            "McGraw",
-            "steven@example.com",
-            "Premium",
-            240.0,
-            "Strength training and consistency");
+    private static void AddGymMember(SQLiteConnection conn)
+    {
+        Console.Write("Enter member name: ");
+        string name = Console.ReadLine();
 
-        Employee employee = new Employee(
-            2,
-            "Alex",
-            "Trainer",
-            "alex.trainer@example.com",
-            "Personal Trainer",
-            25.50);
+        Console.Write("Enter member age: ");
+        int age = int.Parse(Console.ReadLine());
 
-        WorkoutPlan workoutPlan = new WorkoutPlan(
-            101,
-            "Upper Body Strength",
-            "Intermediate",
-            45);
+        Console.Write("Enter membership type: ");
+        string membershipType = Console.ReadLine();
 
-        Console.WriteLine("Gym Member Composition Example");
-        Console.WriteLine(gymMember);
-        Console.WriteLine();
+        GymMember member = new GymMember(name, age, membershipType);
+        GymMemberDB.AddMember(conn, member);
 
-        Console.WriteLine("Workout List Using Polymorphism");
+        Console.WriteLine("Gym member added successfully.");
+    }
 
-        List<Workout> workouts = new List<Workout>();
-        workouts.Add(cardio);
-        workouts.Add(strength);
+    private static void ViewGymMembers(SQLiteConnection conn)
+    {
+        List<GymMember> members = GymMemberDB.GetAllMembers(conn);
+
+        Console.WriteLine("\nGym Members");
+
+        foreach (GymMember member in members)
+        {
+            Console.WriteLine("--------------------");
+            Console.WriteLine(member);
+        }
+    }
+
+    private static void AddWorkout(SQLiteConnection conn)
+    {
+        Console.Write("Enter member ID: ");
+        int memberId = int.Parse(Console.ReadLine());
+
+        GymMember member = GymMemberDB.GetMember(conn, memberId);
+
+        if (member == null)
+        {
+            Console.WriteLine("Member not found.");
+            return;
+        }
+
+        Console.Write("Enter workout name: ");
+        string workoutName = Console.ReadLine();
+
+        Console.Write("Enter duration in minutes: ");
+        int duration = int.Parse(Console.ReadLine());
+
+        Console.Write("Enter calories burned: ");
+        int caloriesBurned = int.Parse(Console.ReadLine());
+
+        Console.Write("Enter workout type: ");
+        string workoutType = Console.ReadLine();
+
+        Workout workout = new Workout(workoutName, duration, caloriesBurned, workoutType);
+        WorkoutDB.AddWorkout(conn, memberId, workout);
+
+        Console.WriteLine("Workout added successfully.");
+    }
+
+    private static void ViewWorkouts(SQLiteConnection conn)
+    {
+        List<Workout> workouts = WorkoutDB.GetAllWorkouts(conn);
+
+        Console.WriteLine("\nWorkouts");
 
         foreach (Workout workout in workouts)
         {
-            PrintWorkoutInfo(workout);
-            Console.WriteLine();
+            Console.WriteLine("--------------------");
+            Console.WriteLine("Workout ID: " + workout.ID);
+            Console.WriteLine("Member ID: " + workout.MemberID);
+            Console.WriteLine("Workout Name: " + workout.WorkoutName);
+            Console.WriteLine("Duration: " + workout.Duration + " minutes");
+            Console.WriteLine("Calories Burned: " + workout.CaloriesBurned);
+            Console.WriteLine("Workout Type: " + workout.WorkoutType);
         }
+    }
 
-        Console.WriteLine("User List Using Polymorphism");
+    private static void UpdateGymMember(SQLiteConnection conn)
+    {
+        Console.Write("Enter member ID to update: ");
+        int id = int.Parse(Console.ReadLine());
 
-        List<User> users = new List<User>();
-        users.Add(member);
-        users.Add(employee);
+        GymMember member = GymMemberDB.GetMember(conn, id);
 
-        foreach (User user in users)
+        if (member == null)
         {
-            PrintUserInfo(user);
-            Console.WriteLine();
+            Console.WriteLine("Member not found.");
+            return;
         }
 
-        Console.WriteLine("Interface Demonstration");
+        Console.Write("Enter updated name: ");
+        string name = Console.ReadLine();
 
-        ITrackable trackable = tracker;
-        trackable.AddWorkoutSession();
-        trackable.ViewProgress();
+        Console.Write("Enter updated age: ");
+        int age = int.Parse(Console.ReadLine());
 
-        Console.WriteLine();
+        Console.Write("Enter updated membership type: ");
+        string membershipType = Console.ReadLine();
 
-        Console.WriteLine("Workout Plan Information");
-        Console.WriteLine(workoutPlan.DisplayWorkout());
-        Console.WriteLine();
+        member.Name = name;
+        member.Age = age;
+        member.MembershipType = membershipType;
 
-        Console.WriteLine("Employee Actions");
-        Console.WriteLine(employee.CreateWorkoutPlan());
-        Console.WriteLine(employee.ManageMembership());
+        GymMemberDB.UpdateMember(conn, member);
+
+        Console.WriteLine("Gym member updated successfully.");
     }
 
-    private static void PrintWorkoutInfo(Workout workout)
+    private static void DeleteGymMember(SQLiteConnection conn)
     {
-        Console.WriteLine(workout.ToString());
+        Console.Write("Enter member ID to delete: ");
+        int id = int.Parse(Console.ReadLine());
+
+        GymMemberDB.DeleteMember(conn, id);
+
+        Console.WriteLine("Gym member deleted successfully.");
     }
 
-    private static void PrintUserInfo(User user)
+    private static void DeleteWorkout(SQLiteConnection conn)
     {
-        Console.WriteLine(user.ToString());
+        Console.Write("Enter workout ID to delete: ");
+        int id = int.Parse(Console.ReadLine());
+
+        WorkoutDB.DeleteWorkout(conn, id);
+
+        Console.WriteLine("Workout deleted successfully.");
     }
 }
