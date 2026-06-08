@@ -21,6 +21,16 @@ public class Program
         GymMemberDB.CreateTable(conn);
         WorkoutDB.CreateTable(conn);
 
+        Console.WriteLine("====================================");
+        Console.WriteLine("One Rep Further Fitness Tracker");
+        Console.WriteLine("Steven McGraw - Week 4 Database Project");
+        Console.WriteLine("====================================");
+
+        Console.WriteLine("\nWelcome!");
+        Console.WriteLine("Use the menu below to manage gym members and workouts.");
+        Console.WriteLine("You can add, view, update, and delete records stored");
+        Console.WriteLine("in the SQLite database.");
+
         bool running = true;
 
         while (running)
